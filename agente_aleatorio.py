@@ -48,10 +48,12 @@ def percencion(x, y):
         izquierda = "X";
     else:
         izquierda =  MATRIZ[x][y-1];
+
     if( x == 0):
         arriba = "X";
     else:
         arriba = MATRIZ[x-1][y];
+
     if(y == 4):
         derecha = "X"
     else:
@@ -64,10 +66,13 @@ def percencion(x, y):
     return pos_actual,izquierda,arriba,derecha,abajo
 
 
+def salida_inicial(x,y,actual,izq,arri,der,abaj):
+    print("Initial position: <",x,",",y,">  Perception: <",actual,",",izq,",",arri,",",der,",",abaj,">")
+
+
 
 matriz_leer()
 dibujar_escenario()
 x_robot , y_robot = pos_robot_aleatoria()
 pos_actual,izquierda,arriba,derecha,abajo = percencion(x_robot,y_robot)
 salida_inicial(x_robot, y_robot, pos_actual, izquierda, arriba, derecha, abajo)
-print(RandomVacuumAgent())
