@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import time
 from random import randrange
 
 MATRIZ = [["0","0","0","0","0"],
@@ -7,6 +8,7 @@ MATRIZ = [["0","0","0","0","0"],
           ["0","0","0","0","0"],
           ["0","0","0","0","0"],
           ["0","0","0","0","0"]]
+
 
 ## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
 def matriz_leer():
@@ -30,49 +32,115 @@ def dibujar_escenario():
             print(MATRIZ[y][x], end=" ")
         print("\n")
 
-## OPTENEMOS UNA POSICION INICIAL ALEATORIA PARA EL ROBOT
-def pos_robot_aleatoria():
-    pos_x = randrange(5)
-    pos_y = randrange(5)
+def escenario_limpio():
+    limpio = True
+    for y in range(5):
+        for x in range(5):
+            if(MATRIZ[y][x] == "1"):
+                 limpio = False
+    return limpio
 
-    while(MATRIZ[pos_y][pos_x] == "X"):
-        pos_x = randrange(5)
+def randomAction():
+    ##---{UP, DOWN, RIGHT, LEFT, SUCK, NOOP}
+    ##---{0, 1, 2, 3, 4, 5}
+    action_ = randrange(6)
 
-    return pos_x, pos_y
+    if action_ == 0:
+        accion_aleatoria = "UP"
+    elif action_ == 1:
+        accion_aleatoria = "DOWN"
+    elif action_ == 2:
+        accion_aleatoria = "RIGHT"
+    elif action_ == 3:
+        accion_aleatoria = "LEFT"
+    elif action_ == 4:
+        accion_aleatoria = "SUCK"
+    elif action_ == 5:
+        accion_aleatoria = "NOOP"
 
-
-def percencion(x, y):
-    pos_actual = MATRIZ[x][y];
-
-    if(y == 0):
-        izquierda = "X";
-    else:
-        izquierda =  MATRIZ[x][y-1];
-
-    if( x == 0):
-        arriba = "X";
-    else:
-        arriba = MATRIZ[x-1][y];
-
-    if(y == 4):
-        derecha = "X"
-    else:
-        derecha = MATRIZ[x][y+1]
-    if(x == 4):
-        abajo = "X"
-    else:
-        abajo = MATRIZ[x+1][y]
-
-    return pos_actual,izquierda,arriba,derecha,abajo
+    return accion_aleatoria
 
 
-def salida_inicial(x,y,actual,izq,arri,der,abaj):
-    print("Initial position: <",x,",",y,">  Perception: <",actual,",",izq,",",arri,",",der,",",abaj,">")
+class Robot:
+    def __init__(self, pos_x, pos_y):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+
+    def percencion(self):
+        self.pos_actual = MATRIZ[self.pos_x][self.pos_y];
+
+        if(self.pos_y == 0):
+            self.izquierda = "X";
+        else:
+            self.izquierda =  MATRIZ[self.pos_x][self.pos_y-1];
+
+        if( self.pos_x == 0):
+            self.arriba = "X";
+        else:
+            self.arriba = MATRIZ[self.pos_x-1][self.pos_y];
+
+        if(self.pos_y == 4):
+            self.derecha = "X"
+        else:
+            self.derecha = MATRIZ[self.pos_x][self.pos_y+1]
+        if(self.pos_x == 4):
+            self.abajo = "X"
+        else:
+            self.abajo = MATRIZ[self.pos_x+1][self.pos_y]
 
 
+
+    def salida_inicial(self):
+        print("Initial position: <",self.pos_x,",",self.pos_y,">  Perception: <",
+                self.pos_actual,",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,">")
+
+
+    def movimiento_accion(self):
+        accion = randomAction()
+        while ((accion == "UP" and self.pos_x == 0) or (accion == "DOWN" and self.pos_x == 4) or (accion == "RIGHT" and self.pos_y == 4)
+                or (accion == "LEFT" and self.pos_y == 0) or (accion == "SUCK" and self.izquierda == "0") or (accion == "UP" and self.arriba == "X")
+                or (accion == "DOWN" and self.abajo == "X") or (accion == "RIGHT" and self.derecha == "X") or (accion == "LEFT" and self.izquierda == "X")):
+            accion = randomAction()
+        self.action = accion
+
+    def do_action(self):
+        if self.action == "UP":
+            self.pos_x = self.pos_x - 1
+        elif self.action == "DOWN":
+            self.pos_x = self.pos_x + 1
+        elif self.action == "RIGHT":
+            self.pos_y = self.pos_y + 1
+        elif self.action == "LEFT":
+            self.pos_y = self.pos_y - 1
+        elif self.action == "SUCK":
+            MATRIZ[self.pos_x][self.pos_y] = "0";
+
+
+
+    def salida_secuencia_acciones(self):
+        print("State <",self.pos_x,",",self.pos_y,">  Perception: <",self.pos_actual,
+                ",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,"> Action:",self.action)
+
+
+
+#---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
 
 matriz_leer()
 dibujar_escenario()
-x_robot , y_robot = pos_robot_aleatoria()
-pos_actual,izquierda,arriba,derecha,abajo = percencion(x_robot,y_robot)
-salida_inicial(x_robot, y_robot, pos_actual, izquierda, arriba, derecha, abajo)
+
+
+robot1 = Robot(0,0)
+robot1.percencion()
+robot1.salida_inicial()
+
+iniciar = escenario_limpio()
+print(iniciar)
+
+while iniciar == False:
+    robot1.movimiento_accion()
+    robot1.do_action()
+    robot1.percencion()
+    robot1.salida_secuencia_acciones()
+    iniciar = escenario_limpio()
+    #time.sleep(1)
+dibujar_escenario()
