@@ -14,7 +14,7 @@ MATRIZ = [["0","0","0","0","0"],
 def matriz_leer():
 ##MATRIZ[0-4][0-4]
 ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-    cadena = open('map_agente_aleatorio.txt')
+    cadena = open('map_agente_basado_tabla.txt')
     x = 0
     y = 0
     for caracter in cadena:
@@ -94,13 +94,63 @@ class Robot:
                 self.pos_actual,",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,">")
 
 
-    def movimiento_accion(self):
-        accion = randomAction()
-        while ((accion == "UP" and self.pos_x == 0) or (accion == "DOWN" and self.pos_x == 4) or (accion == "RIGHT" and self.pos_y == 4)
-                or (accion == "LEFT" and self.pos_y == 0) or (accion == "SUCK" and self.izquierda == "0") or (accion == "UP" and self.arriba == "X")
-                or (accion == "DOWN" and self.abajo == "X") or (accion == "RIGHT" and self.derecha == "X") or (accion == "LEFT" and self.izquierda == "X")):
-            accion = randomAction()
-        self.action = accion
+    def tabla_accion(self):
+        table = {
+            (0, 0, '0') : 'RIGHT' ,
+            (0, 0, '1') : 'SUCK'  ,
+            (0, 1, '0') : 'RIGHT' ,
+            (0, 1, '1') : 'SUCK'  ,
+            (0, 2, '0') : 'RIGHT' ,
+            (0, 2, '1') : 'SUCK'  ,
+            (0, 3, '0') : 'RIGHT' ,
+            (0, 3, '1') : 'SUCK'  ,
+            (0, 4, '0') : 'DOWN'  ,
+            (0, 4, '1') : 'SUCK'  ,
+            (1, 0, '0') : 'RIGHT' ,
+            (1, 0, '1') : 'SUCK'  ,
+            (1, 1, '0') : 'RIGHT' ,
+            (1, 1, '1') : 'SUCK'  ,
+            (1, 2, '0') : 'RIGHT' ,
+            (1, 2, '1') : 'SUCK'  ,
+            (1, 3, '0') : 'DOWN'  ,
+            (1, 3, '1') : 'SUCK'  ,
+            (1, 4, '0') : 'DOWN'  ,
+            (1, 4, '1') : 'SUCK'  ,
+            (2, 0, '0') : 'UP'    ,
+            (2, 0, '1') : 'SUCK'  ,
+            (2, 1, '0') : 'RIGHT' ,
+            (2, 1, '1') : 'SUCK'  ,
+            (2, 2, '0') : 'DOWN'  ,
+            (2, 2, '1') : 'SUCK'  ,
+            (2, 3, '0') : 'DOWN'  ,
+            (2, 3, '1') : 'SUCK'  ,
+            (2, 4, '0') : 'DOWN'  ,
+            (2, 4, '1') : 'SUCK'  ,
+            (3, 0, '0') : 'UP'    ,
+            (3, 0, '1') : 'SUCK'  ,
+            (3, 1, '0') : 'UP'    ,
+            (3, 1, '1') : 'SUCK'  ,
+            (3, 2, '0') : 'LEFT'  ,
+            (3, 2, '1') : 'SUCK'  ,
+            (3, 3, '0') : 'LEFT'  ,
+            (3, 3, '1') : 'SUCK'  ,
+            (3, 4, '0') : 'DOWN'  ,
+            (3, 4, '1') : 'SUCK'  ,
+            (4, 0, '0') : 'UP'    ,
+            (4, 0, '1') : 'SUCK'  ,
+            (4, 1, '0') : 'LEFT'  ,
+            (4, 1, '1') : 'SUCK'  ,
+            (4, 2, '0') : 'LEFT'  ,
+            (4, 2, '1') : 'SUCK'  ,
+            (4, 3, '0') : 'LEFT'  ,
+            (4, 3, '1') : 'SUCK'  ,
+            (4, 4, '0') : 'LEFT'  ,
+            (4, 4, '1') : 'SUCK'  ,
+        }
+
+        print(table[(self.pos_x, self.pos_y, MATRIZ[self.pos_x][self.pos_y])])
+
+        self.action = table[(self.pos_x, self.pos_y, MATRIZ[self.pos_x][self.pos_y])]
 
     def do_action(self):
         if self.action == "UP":
@@ -120,7 +170,6 @@ class Robot:
                 ",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,"> Action:",self.action)
 
 
-
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
 
 matriz_leer()
@@ -132,9 +181,10 @@ robot1.percencion()
 robot1.salida_inicial()
 
 iniciar = escenario_limpio()
+print(iniciar)
 
 while iniciar == False:
-    robot1.movimiento_accion()
+    robot1.tabla_accion()
     robot1.do_action()
     robot1.percencion()
     robot1.salida_secuencia_acciones()
