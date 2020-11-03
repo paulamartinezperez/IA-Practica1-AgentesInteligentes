@@ -33,28 +33,6 @@ def dibujar_escenario():
         print("\n")
 
 
-
-def randomAction():
-    ##---{UP, DOWN, RIGHT, LEFT, SUCK, NOOP}
-    ##---{0, 1, 2, 3, 4, 5}
-    action_ = randrange(6)
-
-    if action_ == 0:
-        accion_aleatoria = "UP"
-    elif action_ == 1:
-        accion_aleatoria = "DOWN"
-    elif action_ == 2:
-        accion_aleatoria = "RIGHT"
-    elif action_ == 3:
-        accion_aleatoria = "LEFT"
-    elif action_ == 4:
-        accion_aleatoria = "SUCK"
-    elif action_ == 5:
-        accion_aleatoria = "NOOP"
-
-    return accion_aleatoria
-
-
 class Robot:
     def __init__(self, pos_x, pos_y):
         self.pos_x = pos_x
