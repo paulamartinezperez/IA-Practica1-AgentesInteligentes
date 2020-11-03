@@ -32,13 +32,7 @@ def dibujar_escenario():
             print(MATRIZ[y][x], end=" ")
         print("\n")
 
-def escenario_limpio():
-    limpio = True
-    for y in range(5):
-        for x in range(5):
-            if(MATRIZ[y][x] == "1"):
-                 limpio = False
-    return limpio
+
 
 def randomAction():
     ##---{UP, DOWN, RIGHT, LEFT, SUCK, NOOP}
@@ -98,11 +92,11 @@ class Robot:
         table = {
             (0, 0, '0') : 'RIGHT' ,
             (0, 0, '1') : 'SUCK'  ,
-            (0, 1, '0') : 'RIGHT' ,
+            (0, 1, '0') : 'DOWN'  ,
             (0, 1, '1') : 'SUCK'  ,
-            (0, 2, '0') : 'RIGHT' ,
+            (0, 2, '0') : 'LEFT'  ,
             (0, 2, '1') : 'SUCK'  ,
-            (0, 3, '0') : 'RIGHT' ,
+            (0, 3, '0') : 'LEFT'  ,
             (0, 3, '1') : 'SUCK'  ,
             (0, 4, '0') : 'DOWN'  ,
             (0, 4, '1') : 'SUCK'  ,
@@ -110,35 +104,35 @@ class Robot:
             (1, 0, '1') : 'SUCK'  ,
             (1, 1, '0') : 'RIGHT' ,
             (1, 1, '1') : 'SUCK'  ,
-            (1, 2, '0') : 'RIGHT' ,
+            (1, 2, '0') : 'DOWN'  ,
             (1, 2, '1') : 'SUCK'  ,
-            (1, 3, '0') : 'DOWN'  ,
+            (1, 3, '0') : 'UP'    ,
             (1, 3, '1') : 'SUCK'  ,
             (1, 4, '0') : 'DOWN'  ,
             (1, 4, '1') : 'SUCK'  ,
-            (2, 0, '0') : 'UP'    ,
+            (2, 0, '0') : 'DOWN'  ,
             (2, 0, '1') : 'SUCK'  ,
             (2, 1, '0') : 'RIGHT' ,
             (2, 1, '1') : 'SUCK'  ,
             (2, 2, '0') : 'DOWN'  ,
             (2, 2, '1') : 'SUCK'  ,
-            (2, 3, '0') : 'DOWN'  ,
+            (2, 3, '0') : 'LEFT'  ,
             (2, 3, '1') : 'SUCK'  ,
-            (2, 4, '0') : 'DOWN'  ,
+            (2, 4, '0') : 'LEFT'  ,
             (2, 4, '1') : 'SUCK'  ,
-            (3, 0, '0') : 'UP'    ,
+            (3, 0, '0') : 'DOWN'  ,
             (3, 0, '1') : 'SUCK'  ,
             (3, 1, '0') : 'UP'    ,
             (3, 1, '1') : 'SUCK'  ,
-            (3, 2, '0') : 'LEFT'  ,
+            (3, 2, '0') : 'RIGHT' ,
             (3, 2, '1') : 'SUCK'  ,
-            (3, 3, '0') : 'LEFT'  ,
+            (3, 3, '0') : 'RIGHT' ,
             (3, 3, '1') : 'SUCK'  ,
             (3, 4, '0') : 'DOWN'  ,
             (3, 4, '1') : 'SUCK'  ,
             (4, 0, '0') : 'UP'    ,
             (4, 0, '1') : 'SUCK'  ,
-            (4, 1, '0') : 'LEFT'  ,
+            (4, 1, '0') : 'UP'    ,
             (4, 1, '1') : 'SUCK'  ,
             (4, 2, '0') : 'LEFT'  ,
             (4, 2, '1') : 'SUCK'  ,
@@ -154,20 +148,47 @@ class Robot:
 
     def do_action(self):
         if self.action == "UP":
-            self.pos_x = self.pos_x - 1
+            if(MATRIZ[self.pos_x-1][self.pos_y] == 'X' and self.pos_y < 4):
+                self.action = "RIGHT"
+            elif (MATRIZ[self.pos_x-1][self.pos_y] == 'X' and self.pos_y == 4):
+               self.action = "LEFT"
+            else :
+                self.pos_x = self.pos_x - 1
         elif self.action == "DOWN":
-            self.pos_x = self.pos_x + 1
+            if(MATRIZ[self.pos_x+1][self.pos_y] == 'X' and self.pos_y < 4 ):
+                self.action = "RIGHT"
+            elif (MATRIZ[self.pos_x+1][self.pos_y] == 'X' and self.pos_y == 4):
+               self.action = "LEFT"
+            else :
+                self.pos_x = self.pos_x + 1
         elif self.action == "RIGHT":
-            self.pos_y = self.pos_y + 1
+            if(MATRIZ[self.pos_x][self.pos_y +1] == 'X' and self.pos_x < 4):
+                self.pos_x = self.pos_x + 1
+            elif (MATRIZ[self.pos_x][self.pos_y +1] == 'X' and self.pos_x == 4):
+                self.pos_x = self.pos_x - 1
+            else :
+                self.pos_y = self.pos_y + 1
         elif self.action == "LEFT":
-            self.pos_y = self.pos_y - 1
+            if(MATRIZ[self.pos_x][self.pos_y -1] == 'X' and self.pos_x < 4):
+                self.pos_x = self.pos_x + 1
+            elif (MATRIZ[self.pos_x][self.pos_y -1] == 'X' and self.pos_x == 4):
+                self.pos_x = self.pos_x - 1
+            else :
+                self.pos_y = self.pos_y - 1
         elif self.action == "SUCK":
             MATRIZ[self.pos_x][self.pos_y] = "0";
+
 
 
     def salida_secuencia_acciones(self):
         print("State <",self.pos_x,",",self.pos_y,">  Perception: <",self.pos_actual,
                 ",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,"> Action:",self.action)
+
+    def alrededor_limpio(self):
+        limpio = True
+        if(self.pos_actual == '1' or self.izquierda == '1' or self.derecha == '1' or self.arriba == '1' or self.abajo == '1'):
+            limpio = False
+        return limpio
 
 
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
@@ -180,7 +201,7 @@ robot1 = Robot(0,0)
 robot1.percencion()
 robot1.salida_inicial()
 
-iniciar = escenario_limpio()
+iniciar = robot1.alrededor_limpio()
 print(iniciar)
 
 while iniciar == False:
@@ -188,6 +209,8 @@ while iniciar == False:
     robot1.do_action()
     robot1.percencion()
     robot1.salida_secuencia_acciones()
-    iniciar = escenario_limpio()
+    iniciar = robot1.alrededor_limpio()
+    dibujar_escenario()
+    time.sleep(0.5)
 
 print("Bye, execution finished")
