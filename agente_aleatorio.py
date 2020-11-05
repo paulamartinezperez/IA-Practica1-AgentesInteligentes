@@ -3,42 +3,47 @@ import numpy as np
 import time
 from random import randrange
 
-MATRIZ = [["0","0","0","0","0"],
-          ["0","0","0","0","0"],
-          ["0","0","0","0","0"],
-          ["0","0","0","0","0"],
-          ["0","0","0","0","0"]]
 
 
-## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
-def matriz_leer():
-##MATRIZ[0-4][0-4]
-## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-    cadena = open('map_agente_aleatorio.txt')
-    x = 0
-    y = 0
-    for caracter in cadena:
-        a = caracter.split()
-        for i in a:
-            MATRIZ[y][x] = i
-            x += 1
+class Environment:
+    def __init__(self):
+        self.matriz = [["0","0","0","0","0"],
+                       ["0","0","0","0","0"],
+                       ["0","0","0","0","0"],
+                       ["0","0","0","0","0"],
+                       ["0","0","0","0","0"]]
+    ## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
+    def matriz_leer(self):
+    ##MATRIZ[0-4][0-4]
+    ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
+        cadena = open('map_agente_aleatorio.txt')
         x = 0
-        y += 1
+        y = 0
+        for caracter in cadena:
+            a = caracter.split()
+            for i in a:
+                self.matriz[y][x] = i
+                x += 1
+            x = 0
+            y += 1
+        return self.matriz
 
-## DIBUJAMOS EN EL TERMINAL EL ESCENARIO
-def dibujar_escenario():
-    for y in range(5):
-        for x in range(5):
-            print(MATRIZ[y][x], end=" ")
-        print("\n")
+    ## DIBUJAMOS EN EL TERMINAL EL ESCENARIO
+    def dibujar_escenario(self):
+        for y in range(5):
+            for x in range(5):
+                print(self.matriz[y][x], end=" ")
+            print("\n")
 
-def escenario_limpio():
-    limpio = True
-    for y in range(5):
-        for x in range(5):
-            if(MATRIZ[y][x] == "1"):
-                 limpio = False
-    return limpio
+    def escenario_limpio(self):
+        limpio = True
+        for y in range(5):
+            for x in range(5):
+                if(self.matriz[y][x] == "1"):
+                     limpio = False
+        return limpio
+
+#------------------------------------------------------------------------------------------------------------
 
 def randomAction():
     ##---{UP, DOWN, RIGHT, LEFT, SUCK, NOOP}
@@ -60,33 +65,34 @@ def randomAction():
 
     return accion_aleatoria
 
+#----------------------------------------------------------------------------------------------------------------
 
 class Robot:
-    def __init__(self, pos_x, pos_y):
+    def __init__(self, pos_x, pos_y, matriz):
         self.pos_x = pos_x
         self.pos_y = pos_y
-
+        self.matriz = matriz
     def percencion(self):
-        self.pos_actual = MATRIZ[self.pos_x][self.pos_y];
+        self.pos_actual = self.matriz[self.pos_x][self.pos_y];
 
         if(self.pos_y == 0):
             self.izquierda = "X";
         else:
-            self.izquierda =  MATRIZ[self.pos_x][self.pos_y-1];
+            self.izquierda =  self.matriz[self.pos_x][self.pos_y-1];
 
         if( self.pos_x == 0):
             self.arriba = "X";
         else:
-            self.arriba = MATRIZ[self.pos_x-1][self.pos_y];
+            self.arriba = self.matriz[self.pos_x-1][self.pos_y];
 
         if(self.pos_y == 4):
             self.derecha = "X"
         else:
-            self.derecha = MATRIZ[self.pos_x][self.pos_y+1]
+            self.derecha = self.matriz[self.pos_x][self.pos_y+1]
         if(self.pos_x == 4):
             self.abajo = "X"
         else:
-            self.abajo = MATRIZ[self.pos_x+1][self.pos_y]
+            self.abajo = self.matriz[self.pos_x+1][self.pos_y]
 
 
     def salida_inicial(self):
@@ -112,7 +118,7 @@ class Robot:
         elif self.action == "LEFT":
             self.pos_y = self.pos_y - 1
         elif self.action == "SUCK":
-            MATRIZ[self.pos_x][self.pos_y] = "0";
+            self.matriz[self.pos_x][self.pos_y] = "0";
 
 
     def salida_secuencia_acciones(self):
@@ -122,22 +128,22 @@ class Robot:
 
 
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
+environment = Environment()
+matriz = environment.matriz_leer()
+environment.dibujar_escenario()
 
-matriz_leer()
-dibujar_escenario()
 
-
-robot1 = Robot(0,0)
+robot1 = Robot(0, 0, matriz)
 robot1.percencion()
 robot1.salida_inicial()
 
-iniciar = escenario_limpio()
+iniciar = environment.escenario_limpio()
 
 while iniciar == False:
     robot1.movimiento_accion()
     robot1.do_action()
     robot1.percencion()
     robot1.salida_secuencia_acciones()
-    iniciar = escenario_limpio()
+    iniciar = environment.escenario_limpio()
 
 print("Bye, execution finished")

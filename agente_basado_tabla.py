@@ -3,62 +3,74 @@ import numpy as np
 import time
 from random import randrange
 
-MATRIZ = [["0","0","0","0","0"],
-          ["0","0","0","0","0"],
-          ["0","0","0","0","0"],
-          ["0","0","0","0","0"],
-          ["0","0","0","0","0"]]
 
 
-## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
-def matriz_leer():
-##MATRIZ[0-4][0-4]
-## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-    cadena = open('map_agente_basado_tabla.txt')
-    x = 0
-    y = 0
-    for caracter in cadena:
-        a = caracter.split()
-        for i in a:
-            MATRIZ[y][x] = i
-            x += 1
+class Environment:
+    def __init__(self):
+        self.matriz = [["0","0","0","0","0"],
+                       ["0","0","0","0","0"],
+                       ["0","0","0","0","0"],
+                       ["0","0","0","0","0"],
+                       ["0","0","0","0","0"]]
+    ## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
+    def matriz_leer(self):
+    ##MATRIZ[0-4][0-4]
+    ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
+        cadena = open('map_agente_basado_tabla.txt')
         x = 0
-        y += 1
+        y = 0
+        for caracter in cadena:
+            a = caracter.split()
+            for i in a:
+                self.matriz[y][x] = i
+                x += 1
+            x = 0
+            y += 1
+        return self.matriz
 
-## DIBUJAMOS EN EL TERMINAL EL ESCENARIO
-def dibujar_escenario():
-    for y in range(5):
-        for x in range(5):
-            print(MATRIZ[y][x], end=" ")
-        print("\n")
+    ## DIBUJAMOS EN EL TERMINAL EL ESCENARIO
+    def dibujar_escenario(self):
+        for y in range(5):
+            for x in range(5):
+                print(self.matriz[y][x], end=" ")
+            print("\n")
+
+    def escenario_limpio(self):
+        limpio = True
+        for y in range(5):
+            for x in range(5):
+                if(self.matriz[y][x] == "1"):
+                     limpio = False
+        return limpio
 
 
 class Robot:
-    def __init__(self, pos_x, pos_y):
+    def __init__(self, pos_x, pos_y, matriz):
         self.pos_x = pos_x
         self.pos_y = pos_y
+        self.matriz = matriz
 
     def percencion(self):
-        self.pos_actual = MATRIZ[self.pos_x][self.pos_y];
+        self.pos_actual = self.matriz[self.pos_x][self.pos_y];
 
         if(self.pos_y == 0):
             self.izquierda = "X";
         else:
-            self.izquierda =  MATRIZ[self.pos_x][self.pos_y-1];
+            self.izquierda =  self.matriz[self.pos_x][self.pos_y-1];
 
         if( self.pos_x == 0):
             self.arriba = "X";
         else:
-            self.arriba = MATRIZ[self.pos_x-1][self.pos_y];
+            self.arriba = self.matriz[self.pos_x-1][self.pos_y];
 
         if(self.pos_y == 4):
             self.derecha = "X"
         else:
-            self.derecha = MATRIZ[self.pos_x][self.pos_y+1]
+            self.derecha = self.matriz[self.pos_x][self.pos_y+1]
         if(self.pos_x == 4):
             self.abajo = "X"
         else:
-            self.abajo = MATRIZ[self.pos_x+1][self.pos_y]
+            self.abajo = self.matriz[self.pos_x+1][self.pos_y]
 
 
     def salida_inicial(self):
@@ -120,41 +132,40 @@ class Robot:
             (4, 4, '1') : 'SUCK'  ,
         }
 
-        print(table[(self.pos_x, self.pos_y, MATRIZ[self.pos_x][self.pos_y])])
 
-        self.action = table[(self.pos_x, self.pos_y, MATRIZ[self.pos_x][self.pos_y])]
+        self.action = table[(self.pos_x, self.pos_y, self.matriz[self.pos_x][self.pos_y])]
 
     def do_action(self):
         if self.action == "UP":
-            if(MATRIZ[self.pos_x-1][self.pos_y] == 'X' and self.pos_y < 4):
+            if(self.matriz[self.pos_x-1][self.pos_y] == 'X' and self.pos_y < 4):
                 self.action = "RIGHT"
-            elif (MATRIZ[self.pos_x-1][self.pos_y] == 'X' and self.pos_y == 4):
+            elif (self.matriz[self.pos_x-1][self.pos_y] == 'X' and self.pos_y == 4):
                self.action = "LEFT"
             else :
                 self.pos_x = self.pos_x - 1
         elif self.action == "DOWN":
-            if(MATRIZ[self.pos_x+1][self.pos_y] == 'X' and self.pos_y < 4 ):
+            if(self.matriz[self.pos_x+1][self.pos_y] == 'X' and self.pos_y < 4 ):
                 self.action = "RIGHT"
-            elif (MATRIZ[self.pos_x+1][self.pos_y] == 'X' and self.pos_y == 4):
+            elif (self.matriz[self.pos_x+1][self.pos_y] == 'X' and self.pos_y == 4):
                self.action = "LEFT"
             else :
                 self.pos_x = self.pos_x + 1
         elif self.action == "RIGHT":
-            if(MATRIZ[self.pos_x][self.pos_y +1] == 'X' and self.pos_x < 4):
+            if(self.matriz[self.pos_x][self.pos_y +1] == 'X' and self.pos_x < 4):
                 self.pos_x = self.pos_x + 1
-            elif (MATRIZ[self.pos_x][self.pos_y +1] == 'X' and self.pos_x == 4):
+            elif (self.matriz[self.pos_x][self.pos_y +1] == 'X' and self.pos_x == 4):
                 self.pos_x = self.pos_x - 1
             else :
                 self.pos_y = self.pos_y + 1
         elif self.action == "LEFT":
-            if(MATRIZ[self.pos_x][self.pos_y -1] == 'X' and self.pos_x < 4):
+            if(self.matriz[self.pos_x][self.pos_y -1] == 'X' and self.pos_x < 4):
                 self.pos_x = self.pos_x + 1
-            elif (MATRIZ[self.pos_x][self.pos_y -1] == 'X' and self.pos_x == 4):
+            elif (self.matriz[self.pos_x][self.pos_y -1] == 'X' and self.pos_x == 4):
                 self.pos_x = self.pos_x - 1
             else :
                 self.pos_y = self.pos_y - 1
         elif self.action == "SUCK":
-            MATRIZ[self.pos_x][self.pos_y] = "0";
+            self.matriz[self.pos_x][self.pos_y] = "0";
 
 
 
@@ -171,16 +182,16 @@ class Robot:
 
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
 
-matriz_leer()
-dibujar_escenario()
+environment = Environment()
+matriz = environment.matriz_leer()
+environment.dibujar_escenario()
 
 
-robot1 = Robot(0,0)
+robot1 = Robot(0, 0, matriz)
 robot1.percencion()
 robot1.salida_inicial()
 
 iniciar = robot1.alrededor_limpio()
-print(iniciar)
 
 while iniciar == False:
     robot1.tabla_accion()
@@ -188,7 +199,7 @@ while iniciar == False:
     robot1.percencion()
     robot1.salida_secuencia_acciones()
     iniciar = robot1.alrededor_limpio()
-    dibujar_escenario()
-    time.sleep(0.5)
+
+environment.dibujar_escenario()
 
 print("Bye, execution finished")
