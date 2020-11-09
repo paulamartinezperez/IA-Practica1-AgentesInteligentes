@@ -5,6 +5,7 @@ from random import randrange
 
 
 
+
 class Environment:
     def __init__(self):
         self.matriz = [["0","0","0","0","0"],
@@ -12,11 +13,19 @@ class Environment:
                        ["0","0","0","0","0"],
                        ["0","0","0","0","0"],
                        ["0","0","0","0","0"]]
+        self.num_obstaculos = 0
     ## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
+
+    def numero_muros(self):
+        print("Cuantos obstaculos quieres?")
+        self.num_obstaculos = int(input())
+        return self.num_obstaculos
+
+
     def matriz_leer(self):
     ##MATRIZ[0-4][0-4]
     ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-        cadena = open('map_agente_basado_tabla.txt')
+        cadena = open('map_agente_aleatorio.txt')
         x = 0
         y = 0
         for caracter in cadena:
@@ -27,6 +36,16 @@ class Environment:
             x = 0
             y += 1
         return self.matriz
+
+    def add_obstaculos(self):
+        for i in range(self.num_obstaculos) :
+            pos_x_aleatoria = randrange(5)
+            pos_y_aleatoria = randrange(5)
+            while((self.matriz[pos_x_aleatoria][pos_y_aleatoria] == "X") or (pos_x_aleatoria == 0 and pos_y_aleatoria == 0)) :
+                pos_x_aleatoria = randrange(5)
+                pos_y_aleatoria = randrange(5)
+            self.matriz[pos_x_aleatoria][pos_y_aleatoria] = "X"
+
 
     ## DIBUJAMOS EN EL TERMINAL EL ESCENARIO
     def dibujar_escenario(self):
@@ -44,6 +63,7 @@ class Environment:
         return limpio
 
 #------------------------------------------------------------------------------------------------------------
+
 def randomAction():
     ##---{UP, DOWN, RIGHT, LEFT}
     ##---{0, 1, 2, 3}
@@ -70,6 +90,9 @@ class Robot:
         self.matriz = matriz
         self.pos_sucio_x = []
         self.pos_sucio_y = []
+        self.pos_recorridas_x = []
+        self.pos_recorridas_y = []
+
 
 
 
@@ -190,12 +213,23 @@ class Robot:
                  print(" x: ",self.pos_sucio_x[valor]," y: ",self.pos_sucio_y[valor])
 
 
-
+    def num_posiciones_recorridas(self) :
+        no_repetido = True
+        for valor in range(len(self.pos_recorridas_x)):
+            if (self.pos_x == self.pos_recorridas_x[valor]) and (self.pos_y == self.pos_recorridas_y[valor]) :
+                no_repetido = False
+        if no_repetido == True :
+            self.pos_recorridas_x.append(self.pos_x)
+            self.pos_recorridas_y.append(self.pos_y)
+        
+        return len(self.pos_recorridas_x)
 
 
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
 environment = Environment()
+num_muros = environment.numero_muros()
 matriz = environment.matriz_leer()
+environment.add_obstaculos()
 environment.dibujar_escenario()
 
 
@@ -203,16 +237,16 @@ robot1 = Robot(0, 0, matriz)
 robot1.percencion()
 robot1.salida_inicial()
 
-iniciar = environment.escenario_limpio()
+iniciar = robot1.num_posiciones_recorridas()
 
-for i in range(250):
+while (iniciar + num_muros) < 25 :
     robot1.posiciones_sucias()
     robot1.movimiento_accion()
     robot1.do_action()
     robot1.percencion()
     robot1.salida_secuencia_acciones()
-    iniciar = environment.escenario_limpio()
-    #time.sleep(1)
+    iniciar = robot1.num_posiciones_recorridas()
+
 print(" ")
 robot1.programa_salida_pos_sucias()
 print(" ")
