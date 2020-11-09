@@ -12,11 +12,19 @@ class Environment:
                        ["0","0","0","0","0"],
                        ["0","0","0","0","0"],
                        ["0","0","0","0","0"]]
+        self.num_obstaculos = 0
     ## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
+
+    def numero_muros(self):
+        print("Cuantos obstaculos quieres?")
+        self.num_obstaculos = int(input())
+        return self.num_obstaculos
+
+
     def matriz_leer(self):
     ##MATRIZ[0-4][0-4]
     ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-        cadena = open('map_agente_basado_tabla.txt')
+        cadena = open('map_agente_aleatorio.txt')
         x = 0
         y = 0
         for caracter in cadena:
@@ -27,6 +35,16 @@ class Environment:
             x = 0
             y += 1
         return self.matriz
+
+    def add_obstaculos(self):
+        for i in range(self.num_obstaculos) :
+            pos_x_aleatoria = randrange(5)
+            pos_y_aleatoria = randrange(5)
+            while((self.matriz[pos_x_aleatoria][pos_y_aleatoria] == "X") or (pos_x_aleatoria == 0 and pos_y_aleatoria == 0)) :
+                pos_x_aleatoria = randrange(5)
+                pos_y_aleatoria = randrange(5)
+            self.matriz[pos_x_aleatoria][pos_y_aleatoria] = "X"
+
 
     ## DIBUJAMOS EN EL TERMINAL EL ESCENARIO
     def dibujar_escenario(self):
@@ -43,7 +61,7 @@ class Environment:
                      limpio = False
         return limpio
 
-#------------------------------------------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------
 
 class Robot:
     def __init__(self, pos_x, pos_y, matriz):
@@ -182,9 +200,10 @@ class Robot:
 
 
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
-
 environment = Environment()
+num_obstaculos = environment.numero_muros()
 matriz = environment.matriz_leer()
+environment.add_obstaculos()
 environment.dibujar_escenario()
 
 
@@ -201,6 +220,5 @@ while iniciar == False:
     robot1.salida_secuencia_acciones()
     iniciar = robot1.alrededor_limpio()
 
-environment.dibujar_escenario()
 
 print("Bye, execution finished")
