@@ -16,6 +16,7 @@ class Environment:
         self.num_obstaculos = 0
     ## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
 
+    ##añadimos el numero de obstaculos que queremos
     def numero_muros(self):
         print("Cuantos obstaculos quieres?")
         self.num_obstaculos = int(input())
@@ -25,7 +26,7 @@ class Environment:
     def matriz_leer(self):
     ##MATRIZ[0-4][0-4]
     ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-        cadena = open('map_agente_aleatorio.txt')
+        cadena = open('map.txt')
         x = 0
         y = 0
         for caracter in cadena:
@@ -37,6 +38,7 @@ class Environment:
             y += 1
         return self.matriz
 
+    ##decide de forma aleatoria donde colocar los n obstaculos que escogio el usuario
     def add_obstaculos(self):
         for i in range(self.num_obstaculos) :
             pos_x_aleatoria = randrange(5)
@@ -85,6 +87,9 @@ def randomAction():
 
 class Robot:
     def __init__(self, pos_x, pos_y, matriz):
+        #inicializamos el robot con su posicion en el mapa
+        # y creamos un array con las posiciones que tenemos SUCIAS
+        # y otro array para ver si hemos recorrido todo el mapa para finalizar el programa
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.matriz = matriz
@@ -97,6 +102,7 @@ class Robot:
 
 
     def percencion(self):
+        #obtemenos la percepcion que tiene el robot a su alrededor
         self.pos_actual = self.matriz[self.pos_x][self.pos_y];
 
         if(self.pos_y == 0):
@@ -120,10 +126,13 @@ class Robot:
 
 
     def salida_inicial(self):
+        #salida por terminal inicial
         print("Initial position: <",self.pos_x,",",self.pos_y,">  Perception: <",
                 self.pos_actual,",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,">")
 
     def posiciones_sucias(self):
+        #cada vez que encontramos una posicion sucia miramos en el array a ver si ya la teniamos
+        # guardada, si no es así la guardamos
         no_repetido = True
         if self.matriz[self.pos_x][self.pos_y] == '1':
              for valor in range(len(self.pos_sucio_x)):
@@ -135,10 +144,8 @@ class Robot:
 
 
 
-
-
     def movimiento_accion(self):
-
+        ##dependiendo de donde está decidimos que hacer dependiendo de su percepcion
         if (self.pos_x == 0 or self.pos_x == 4) and self.pos_y == 0:
 
             if self.derecha == 'X' :
@@ -188,6 +195,7 @@ class Robot:
 
 
     def do_action(self):
+        ## mandamos la orden que hemos decidido hacer de forma aleatoria
         if self.action == "UP":
             self.pos_x = self.pos_x - 1
         elif self.action == "DOWN":
@@ -201,10 +209,12 @@ class Robot:
 
 
     def salida_secuencia_acciones(self):
+        #salida por termial de la ejecución del programa
         print("State <",self.pos_x,",",self.pos_y,">  Perception: <",self.pos_actual,
                 ",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,"> Action:",self.action)
 
     def programa_salida_pos_sucias(self):
+        #imprimimos las posiciones que están sucias
         if(len(self.pos_sucio_x) == 0 and len(self.pos_sucio_x) == 0):
             print("POSICIONES SUCIAS: NOOP")
         else :
@@ -214,6 +224,8 @@ class Robot:
 
 
     def num_posiciones_recorridas(self) :
+        ##vamos guardando en un array las posiciones que hemos recorrido
+        # para así ver si hemos ya pasado por todas o no
         no_repetido = True
         for valor in range(len(self.pos_recorridas_x)):
             if (self.pos_x == self.pos_recorridas_x[valor]) and (self.pos_y == self.pos_recorridas_y[valor]) :
@@ -221,24 +233,26 @@ class Robot:
         if no_repetido == True :
             self.pos_recorridas_x.append(self.pos_x)
             self.pos_recorridas_y.append(self.pos_y)
-        
+
         return len(self.pos_recorridas_x)
 
 
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
+##creamos el mundo con los obstaculos que decidimos
 environment = Environment()
 num_muros = environment.numero_muros()
 matriz = environment.matriz_leer()
 environment.add_obstaculos()
 environment.dibujar_escenario()
 
-
+##creamos el agente
 robot1 = Robot(0, 0, matriz)
 robot1.percencion()
 robot1.salida_inicial()
 
 iniciar = robot1.num_posiciones_recorridas()
 
+##recorremos todo el mapa para buscar las posiciones sucias
 while (iniciar + num_muros) < 25 :
     robot1.posiciones_sucias()
     robot1.movimiento_accion()
@@ -247,7 +261,9 @@ while (iniciar + num_muros) < 25 :
     robot1.salida_secuencia_acciones()
     iniciar = robot1.num_posiciones_recorridas()
 
+
 print(" ")
+#imprimimos las posiciones sucias
 robot1.programa_salida_pos_sucias()
 print(" ")
 
