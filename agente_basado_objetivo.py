@@ -24,7 +24,7 @@ class Environment:
     def matriz_leer(self):
     ##MATRIZ[0-4][0-4]
     ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-        cadena = open('map_agente_aleatorio.txt')
+        cadena = open('map.txt')
         x = 0
         y = 0
         for caracter in cadena:
@@ -36,6 +36,7 @@ class Environment:
             y += 1
         return self.matriz
 
+    ##añadimos el numero de obstaculos que queremos
     def add_obstaculos(self):
         for i in range(self.num_obstaculos) :
             pos_x_aleatoria = randrange(5)
@@ -60,12 +61,14 @@ class Environment:
 
 class Robot:
     def __init__(self, pos_x, pos_y, matriz):
+        #inicializamos el robot con su posicion en el mapa
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.matriz = matriz
 
 
     def percencion(self):
+        #obtemenos la percepcion que tiene el robot a su alrededor
         self.pos_actual = self.matriz[self.pos_x][self.pos_y];
 
         if(self.pos_y == 0):
@@ -89,11 +92,13 @@ class Robot:
 
 
     def salida_inicial(self):
+        #salida por terminal inicial
         print("Initial position: <",self.pos_x,",",self.pos_y,">  Perception: <",
                 self.pos_actual,",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,">")
 
 
     def sucio_mas_cercano(self):
+        #buscamos la posicion sucia más cercana para ir a ella
         x_mas_cerca = 10
         y_mas_cerca = 10
         for x in range(5) :
@@ -107,6 +112,7 @@ class Robot:
 
 
     def do_action(self):
+        ##trazamos la ruta a la posicion sucia más cercana
         while(self.pos_x != self.pos_cercano_x or self.pos_y != self.pos_cercano_y) :
             if(self.pos_x > self.pos_cercano_x) :
                 self.pos_x = self.pos_x - 1
@@ -146,7 +152,7 @@ class Robot:
                     ",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,"> Action:",self.action)
 
     def limpiar_pos(self):
-
+        #limpiamos la posición sucia
         self.matriz[self.pos_x][self.pos_y] = "0"
         if(self.pos_y == 0):
             self.izquierda = "X";
@@ -173,9 +179,11 @@ class Robot:
 
 
     def salida_secuencia_acciones(self):
+        #salida por termial de la ejecución del programa
         print("State <",self.pos_x,",",self.pos_y,">  Perception: <",self.pos_actual,
                 ",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,"> Action:",self.action)
 
+    ##OBJETIVO DEL ROBOT: tener limpio todo
     def escenario_limpio(self):
         limpio = True
         for y in range(5):
@@ -184,17 +192,20 @@ class Robot:
                      limpio = False
         return limpio
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
+##creamos el mundo con los obstaculos que decidimos
 environment = Environment()
 num_muros = environment.numero_muros()
 matriz = environment.matriz_leer()
 environment.add_obstaculos()
 environment.dibujar_escenario()
 
+##creamos el
 robot1 = Robot(0, 0, matriz)
 robot1.percencion()
 robot1.salida_inicial()
 
 iniciar = robot1.escenario_limpio()
+#hasta que se cumpla el objetivo el robot sigue funcionando
 while iniciar == False:
     robot1.sucio_mas_cercano()
     robot1.do_action()
