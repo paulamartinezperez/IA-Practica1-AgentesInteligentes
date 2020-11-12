@@ -15,6 +15,7 @@ class Environment:
         self.num_obstaculos = 0
     ## LEEMOS EL ARCHIVO QUE CONTIENE EL MAPA
 
+    ##añadimos el numero de obstaculos que queremos
     def numero_muros(self):
         print("Cuantos obstaculos quieres?")
         self.num_obstaculos = int(input())
@@ -24,7 +25,7 @@ class Environment:
     def matriz_leer(self):
     ##MATRIZ[0-4][0-4]
     ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-        cadena = open('map_agente_aleatorio.txt')
+        cadena = open('map.txt')
         x = 0
         y = 0
         for caracter in cadena:
@@ -36,6 +37,7 @@ class Environment:
             y += 1
         return self.matriz
 
+    ##decide de forma aleatoria donde colocar los n obstaculos que escogio el usuario
     def add_obstaculos(self):
         for i in range(self.num_obstaculos) :
             pos_x_aleatoria = randrange(5)
@@ -82,10 +84,13 @@ def randomAction():
 
 class Robot:
     def __init__(self, pos_x, pos_y, matriz):
+        #inicializamos el robot con su posicion en el mapa
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.matriz = matriz
+
     def percencion(self):
+        #obtemenos la percepcion que tiene el robot a su alrededor
         self.pos_actual = self.matriz[self.pos_x][self.pos_y];
 
         if(self.pos_y == 0):
@@ -109,11 +114,14 @@ class Robot:
 
 
     def salida_inicial(self):
+        #salida por terminal inicial
         print("Initial position: <",self.pos_x,",",self.pos_y,">  Perception: <",
                 self.pos_actual,",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,">")
 
 
     def movimiento_accion(self):
+        ##dependiendo de donde está decidimos que hacer dependiendo de su percepcion y si su
+        # posicion está sucia lo que hacemos es limpiarla directamente
         if self.matriz[self.pos_x][self.pos_y] == '1':
              self.action = "SUCK"
 
@@ -166,6 +174,7 @@ class Robot:
 
 
     def do_action(self):
+        ## mandamos la orden que hemos decidido hacer de forma aleatoria
         if self.action == "UP":
             self.pos_x = self.pos_x - 1
         elif self.action == "DOWN":
@@ -179,25 +188,28 @@ class Robot:
 
 
     def salida_secuencia_acciones(self):
+        #salida por termial de la ejecución del programa
         print("State <",self.pos_x,",",self.pos_y,">  Perception: <",self.pos_actual,
                 ",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,"> Action:",self.action)
 
 
 
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
+##creamos el mundo con los obstaculos que decidimos
 environment = Environment()
 num_muros = environment.numero_muros()
 matriz = environment.matriz_leer()
 environment.add_obstaculos()
 environment.dibujar_escenario()
 
-
+##creamos el agente
 robot1 = Robot(0, 0, matriz)
 robot1.percencion()
 robot1.salida_inicial()
 
 iniciar = environment.escenario_limpio()
 
+##hasta que el escenario no esté limpio se ejecutara
 while iniciar == False:
     robot1.movimiento_accion()
     robot1.do_action()
