@@ -161,7 +161,7 @@ matriz = environment.matriz_leer()
 environment.add_obstaculos()
 environment.dibujar_escenario()
 
-##¢reamos el agente
+##creamos el agente
 robot1 = Robot(0, 0, matriz)
 robot1.percencion()
 robot1.salida_inicial()
