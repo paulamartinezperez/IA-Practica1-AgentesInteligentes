@@ -24,7 +24,7 @@ class Environment:
     def matriz_leer(self):
     ##MATRIZ[0-4][0-4]
     ## por ejemplo para ir a la posicion X de la fila 5 y columna 4 sería MATRIZ[4][3]
-        cadena = open('map_agente_aleatorio.txt')
+        cadena = open('map.txt')
         x = 0
         y = 0
         for caracter in cadena:
@@ -36,6 +36,7 @@ class Environment:
             y += 1
         return self.matriz
 
+    ##decide de forma aleatoria donde colocar los n obstaculos que escogio el usuario
     def add_obstaculos(self):
         for i in range(self.num_obstaculos) :
             pos_x_aleatoria = randrange(5)
@@ -53,6 +54,7 @@ class Environment:
                 print(self.matriz[y][x], end=" ")
             print("\n")
 
+    ##comprueba que todo el escenario esté limpio
     def escenario_limpio(self):
         limpio = True
         for y in range(5):
@@ -65,11 +67,13 @@ class Environment:
 
 class Robot:
     def __init__(self, pos_x, pos_y, matriz):
+        #inicializamos el robot con su posicion en el mapa
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.matriz = matriz
 
     def percencion(self):
+        #obtemenos la percepcion que tiene el robot a su alrededor
         self.pos_actual = self.matriz[self.pos_x][self.pos_y];
 
         if(self.pos_y == 0):
@@ -93,11 +97,14 @@ class Robot:
 
 
     def salida_inicial(self):
+        #salida por terminal inicial
         print("Initial position: <",self.pos_x,",",self.pos_y,">  Perception: <",
                 self.pos_actual,",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,">")
 
 
     def tabla_accion(self):
+        ##creamos las tablas con lo que tiene que hacer el robot dependiendo de la posicion
+        ## y de si está sucio o no la posicion en la que se situa
         table = {
             (0, 0, '0') : 'RIGHT' ,
             (0, 0, '1') : 'SUCK'  ,
@@ -155,6 +162,7 @@ class Robot:
         self.action = table[(self.pos_x, self.pos_y, self.matriz[self.pos_x][self.pos_y])]
 
     def do_action(self):
+        ## mandamos la orden que hemos decidido hacer dependiendo de la tabla
         if self.action == "UP":
             if(self.matriz[self.pos_x-1][self.pos_y] == 'X' and self.pos_y < 4):
                 self.action = "RIGHT"
@@ -189,36 +197,34 @@ class Robot:
 
 
     def salida_secuencia_acciones(self):
+        #salida por termial de la ejecución del programa
         print("State <",self.pos_x,",",self.pos_y,">  Perception: <",self.pos_actual,
                 ",",self.izquierda,",",self.arriba,",",self.derecha,",",self.abajo,"> Action:",self.action)
 
-    def alrededor_limpio(self):
-        limpio = True
-        if(self.pos_actual == '1' or self.izquierda == '1' or self.derecha == '1' or self.arriba == '1' or self.abajo == '1'):
-            limpio = False
-        return limpio
 
 
 #---------------------------- MAIN // PROGRMA PRINCIPAL ------------------------------------------------------·#
+##creamos el mundo con los obstaculos que decidimos
 environment = Environment()
 num_obstaculos = environment.numero_muros()
 matriz = environment.matriz_leer()
 environment.add_obstaculos()
 environment.dibujar_escenario()
 
-
+##creamos el agente
 robot1 = Robot(0, 0, matriz)
 robot1.percencion()
 robot1.salida_inicial()
 
-iniciar = robot1.alrededor_limpio()
-
+#hasta que el escenario no esté limpio se ejecutara
+## muchas veces queda en un bucle infinito ya que al ser una accion fija sin tener en
+##cuenta nada del mundo las acciones no son las adecuadas
+iniciar = environment.escenario_limpio()
 while iniciar == False:
     robot1.tabla_accion()
     robot1.do_action()
     robot1.percencion()
     robot1.salida_secuencia_acciones()
-    iniciar = robot1.alrededor_limpio()
-
+    iniciar = environment.escenario_limpio()
 
 print("Bye, execution finished")
